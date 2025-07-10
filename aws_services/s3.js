@@ -14,7 +14,13 @@ if (AWS_S3_VARS.localEndpoint){
 }
 else{S3_ARGS.region=AWS_S3_VARS.bucketRegion;}
 
-const S3=new S3Client(S3_ARGS);
+const S3=new S3Client({
+    region:AWS_S3_VARS.bucketRegion,
+    credentials:{
+        accessKeyId:AWS_S3_VARS.accessKeyId,
+        secretAccessKey:AWS_S3_VARS.secretAccessKey
+    }
+});
 
 const BUCKET_NAME=AWS_S3_VARS.bucketName;
 
