@@ -1,0 +1,22 @@
+{
+  "name": "diffumcronjob",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env APP_ENV=prod NODE_ENV=production node ./index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.685.0",
+    "@aws-sdk/client-sqs": "^3.682.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "mongoose": "^8.8.0",
+    "sharp": "^0.34.2"
+  }
+}
