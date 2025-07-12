@@ -1,6 +1,8 @@
 
 const sharp = require('sharp');
 
+const {GoalModel,MongoDB_Error}=require("../mongodb");
+
 const {S3_FUNCS}=require("../aws_services");
 
 //------------------------- DB ---------------------------------------------- 
