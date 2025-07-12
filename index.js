@@ -1,3 +1,5 @@
+const {connect_MongoDB,disconnect_MongoDB}=require("./mongodb/connection.js")
+
 const {get_ImgFile_Array,save_NewImgFile,get_Img_FromDb,save_NewImg_2Db}=require("./update/getters_savers.js");
 
 const {get_randNum,get_pixelCoords,
@@ -80,4 +82,20 @@ async function updateGoal(dbId){
 
 //updateGoal_onlyS3("652b9f1e9f1e9f1e9f1e9f1f_s3",DEFAULT_UNTOUCHED_PIX,DEFLT_CANT_PIX_XDAY,DEFLT_DIFFUM_COLOR)
 
-updateGoal("poner ID");
+async function main(){
+    try{
+        await connect_MongoDB();
+        console.log("Connected to MongoDB");
+
+        //await updateGoal_onlyS3("
+        await updateGoal("652b9f1e9f1e9f1e9f1e9f1f");
+        console.log("Goal updated successfully");
+    }
+    catch(e){
+        console.error("Error during update:", e);
+    }
+    await disconnect_MongoDB();
+    console.log("Disconnected from MongoDB"); 
+}
+
+main()

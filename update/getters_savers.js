@@ -12,16 +12,14 @@ async function get_Img_FromDb(id){
     
     try{
         let doc=await GoalModel.findById(id).select("untouched_pix cant_pix_xday diffum_color s3_imgName");
+        return {untouched_pix:doc.untouched_pix,
+               cant_pix_xday:doc.cant_pix_xday,
+               diffum_color:doc.diffum_color,
+               s3_imgName:doc.s3_imgName};
     }
     catch(e){
         throw new MongoDB_Error("Getting img from DB",e);
     }
-    return {untouched_pix:doc.untouched_pix,
-           cant_pix_xday:doc.cant_pix_xday,
-           diffum_color:doc.diffum_color,
-           s3_imgName:doc.s3_imgName};
-
-    //Ver como hacer return de esto --------------------------------------------
 }
 
 
