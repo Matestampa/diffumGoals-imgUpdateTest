@@ -105,18 +105,19 @@ async function main(){
         await connect_MongoDB();
         console.log("Connected to MongoDB");
 
-        /*await updateGoal_onlyS3("
+        console.time("updateGoals")
         for (let goalId of goals){
             console.log(`Updating goal with ID: ${goalId}`);
             await updateGoal(goalId);
             console.log(`Goal with ID: ${goalId} updated successfully`);
-        }*/
-       console.time("get_Img_FromDb_Pagination")
+        }
+        console.timeEnd("updateGoals")
+       /*console.time("get_Img_FromDb_Pagination")
        await get_Img_FromDb_Pagination(1, 5); // Example usage of pagination function
        console.timeEnd("get_Img_FromDb_Pagination")
        console.time("get_Img_FromDb_Pagination")
        await get_Img_FromDb_Pagination(2, 5); // Example usage of pagination function
-       console.timeEnd("get_Img_FromDb_Pagination")
+       console.timeEnd("get_Img_FromDb_Pagination")*/
     }
     catch(e){
         console.error("Error during update:", e);
