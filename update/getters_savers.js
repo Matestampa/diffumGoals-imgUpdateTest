@@ -22,6 +22,46 @@ async function get_Img_FromDb(id){
     }
 }
 
+//Trae arr de pix de imgs con paginación
+async function get_Img_FromDb_Pagination(page = 1, limit = 10, filter = {}){
+    
+    try{
+        const skip = (page - 1) * limit;
+        
+        const docs = await GoalModel
+            .find(filter)
+            .select("untouched_pix cant_pix_xday diffum_color s3_imgName")
+            .skip(skip)
+            .limit(limit);
+        
+        const totalCount = await GoalModel.countDocuments(filter);
+        const totalPages = Math.ceil(totalCount / limit);
+        
+        const results = docs.map(doc => ({
+            id: doc._id,
+            untouched_pix: doc.untouched_pix,
+            cant_pix_xday: doc.cant_pix_xday,
+            diffum_color: doc.diffum_color,
+            s3_imgName: doc.s3_imgName
+        }));
+        
+        return {
+            data: results,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalCount: totalCount,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+                limit: limit
+            }
+        };
+    }
+    catch(e){
+        throw new MongoDB_Error("Getting imgs from DB with pagination", e);
+    }
+}
+
 
 //Guarda nuevo arr de pix actualizado de la img en la DB
 async function save_NewImg_2Db(id,pixelArr,data){
@@ -56,6 +96,6 @@ async function save_NewImgFile(imgName, pixelArr, info) {
     await S3_FUNCS.saveObject(imgName, buffer, "image/png");
 }
 
-module.exports={get_Img_FromDb,save_NewImg_2Db,
+module.exports={get_Img_FromDb,get_Img_FromDb_Pagination,save_NewImg_2Db,
                 get_ImgFile_Array,save_NewImgFile
 }

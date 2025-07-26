@@ -1,4 +1,4 @@
-const { S3Client, PutObjectCommand,GetObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } = require("@aws-sdk/client-s3");
 
 const { AWS_S3_VARS } = require("../config/aws_config.js");
 
@@ -72,7 +72,7 @@ async function getObject(key){
 
 const S3_FUNCS={
     saveObject,
-    getObject
+    getObject,
 }
 
 module.exports = {S3,S3_FUNCS};

@@ -1,6 +1,6 @@
 const {connect_MongoDB,disconnect_MongoDB}=require("./mongodb/connection.js")
 
-const {get_ImgFile_Array,save_NewImgFile,get_Img_FromDb,save_NewImg_2Db}=require("./update/getters_savers.js");
+const {get_ImgFile_Array,save_NewImgFile,get_Img_FromDb,save_NewImg_2Db,get_Img_FromDb_Pagination}=require("./update/getters_savers.js");
 
 const {get_randNum,get_pixelCoords,
        changePixel,delete_arrElem}=require("./update/utils.js");
@@ -105,12 +105,18 @@ async function main(){
         await connect_MongoDB();
         console.log("Connected to MongoDB");
 
-        //await updateGoal_onlyS3("
+        /*await updateGoal_onlyS3("
         for (let goalId of goals){
             console.log(`Updating goal with ID: ${goalId}`);
             await updateGoal(goalId);
             console.log(`Goal with ID: ${goalId} updated successfully`);
-        }
+        }*/
+       console.time("get_Img_FromDb_Pagination")
+       await get_Img_FromDb_Pagination(1, 5); // Example usage of pagination function
+       console.timeEnd("get_Img_FromDb_Pagination")
+       console.time("get_Img_FromDb_Pagination")
+       await get_Img_FromDb_Pagination(2, 5); // Example usage of pagination function
+       console.timeEnd("get_Img_FromDb_Pagination")
     }
     catch(e){
         console.error("Error during update:", e);
