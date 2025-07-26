@@ -48,7 +48,6 @@ async function saveObject(key,dataBuffer,contentType){
 }
 
 async function getObject(key){
-    console.log("Buckjet name: ",BUCKET_NAME);
 
     let params={
         Bucket:BUCKET_NAME,
