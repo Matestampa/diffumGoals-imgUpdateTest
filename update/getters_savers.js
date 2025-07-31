@@ -74,6 +74,22 @@ async function save_NewImg_2Db(id,pixelArr,data){
     }
 }
 
+async function saveMulti_NewImg_2Db(goalsUpdated){
+
+    let operations=[]
+
+    for (let goal of goalsUpdated){
+        operations.push({updateOne:{filter:{_id:goal.id},update:{$set:{untouched_pix:goal.untouched_pix, last_diffumDate:new Date()}}}})
+    }
+
+    try {
+        await GoalModel.bulkWrite(operations)
+    }
+    catch(e){
+        throw new MongoDB_Error("Saving new imgs batch to DB",e)
+    }
+}
+
 
 //------------------------- S3 ----------------------------------------------
 
@@ -96,6 +112,6 @@ async function save_NewImgFile(imgName, pixelArr, info) {
     await S3_FUNCS.saveObject(imgName, buffer, "image/png");
 }
 
-module.exports={get_Img_FromDb,get_Img_FromDb_Pagination,save_NewImg_2Db,
+module.exports={get_Img_FromDb,get_Img_FromDb_Pagination,save_NewImg_2Db,saveMulti_NewImg_2Db,
                 get_ImgFile_Array,save_NewImgFile
 }
