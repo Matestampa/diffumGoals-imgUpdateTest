@@ -101,15 +101,25 @@ async function main(){
     try{
         await connect_MongoDB();
         console.log("Connected to MongoDB");
-
         let nextPage=true
         let page=1
         let limit=10
+        
+        // Arrays to store timing data for each iteration
+        let mongoDownloadTimes = []
+        let mongoUploadTimes = []
+        
         while (nextPage){
-          console.log(page)
-          console.time("multi descarga de monoDb")
+          console.log(`Processing page ${page}`)
+
+          // MongoDB Download timing
+          let mongoDownloadStart = performance.now()
           results=await get_Img_FromDb_Pagination(page,limit)
-          console.timeEnd("multi descarga de monoDb")
+          let mongoDownloadEnd = performance.now()
+          let mongoDownloadTime = mongoDownloadEnd - mongoDownloadStart
+          mongoDownloadTimes.push(mongoDownloadTime)
+          console.log(`MongoDB download time: ${mongoDownloadTime.toFixed(2)}ms`)
+          
           goals=results.data
           nextPage=results.pagination.hasNextPage
           page++
@@ -124,10 +134,13 @@ async function main(){
             s3Data_2_update.push({imgName:goal.s3_imgName,pixelArr:image_dataArr,imageInfo:imageInfo})
           }
 
-          //Subir a mongodb
-          console.time("MultiUpload a mongoDB")
+          // MongoDB Upload timing
+          let mongoUploadStart = performance.now()
           await saveMulti_NewImg_2Db(dbData_2_update)
-          console.timeEnd("MultiUpload a mongoDB")
+          let mongoUploadEnd = performance.now()
+          let mongoUploadTime = mongoUploadEnd - mongoUploadStart
+          mongoUploadTimes.push(mongoUploadTime)
+          console.log(`MongoDB upload time: ${mongoUploadTime.toFixed(2)}ms`)
 
           //subir a s3
           console.log("Subiendo a s3")
@@ -135,6 +148,34 @@ async function main(){
              await save_NewImgFile(goalImage.imgName,goalImage.pixelArr,goalImage.imageInfo)
           }
 
+        }
+        
+        // Calculate and display timing statistics
+        if (mongoDownloadTimes.length > 0) {
+          let totalDownloadTime = mongoDownloadTimes.reduce((sum, time) => sum + time, 0)
+          let avgDownloadTime = totalDownloadTime / mongoDownloadTimes.length
+          console.log(`\n=== MongoDB Download Statistics ===`)
+          console.log(`Total iterations: ${mongoDownloadTimes.length}`)
+          console.log(`Total download time: ${totalDownloadTime.toFixed(2)}ms`)
+          console.log(`Average download time per iteration: ${avgDownloadTime.toFixed(2)}ms`)
+        }
+        
+        if (mongoUploadTimes.length > 0) {
+          let totalUploadTime = mongoUploadTimes.reduce((sum, time) => sum + time, 0)
+          let avgUploadTime = totalUploadTime / mongoUploadTimes.length
+          console.log(`\n=== MongoDB Upload Statistics ===`)
+          console.log(`Total iterations: ${mongoUploadTimes.length}`)
+          console.log(`Total upload time: ${totalUploadTime.toFixed(2)}ms`)
+          console.log(`Average upload time per iteration: ${avgUploadTime.toFixed(2)}ms`)
+        }
+        
+        if (mongoDownloadTimes.length > 0 && mongoUploadTimes.length > 0) {
+          let totalCombinedTime = mongoDownloadTimes.reduce((sum, time) => sum + time, 0) + 
+                                 mongoUploadTimes.reduce((sum, time) => sum + time, 0)
+          let avgCombinedTime = totalCombinedTime / mongoDownloadTimes.length
+          console.log(`\n=== Combined MongoDB Statistics ===`)
+          console.log(`Total combined time (download + upload): ${totalCombinedTime.toFixed(2)}ms`)
+          console.log(`Average combined time per iteration: ${avgCombinedTime.toFixed(2)}ms`)
         }
         
     }
