@@ -51,14 +51,13 @@ async function updateGoal_onlyS3(s3_imgName,untouched_pix,cant_pix_xday,diffum_c
 }
 
 async function updateGoal(dbId){
-    console.time("updateOneGoal")
 
     console.time("get_Img_FromDb")
     let {untouched_pix,cant_pix_xday,diffum_color,s3_imgName}=await get_Img_FromDb(dbId)
     console.timeEnd("get_Img_FromDb")
-    console.time("get_ImgFile_fromS3")
+    
     let {image_dataArr,imageInfo}=await get_ImgFile_Array(s3_imgName);
-    console.timeEnd("get_ImgFile_fromS3")
+    
     
     //Si ya quedan los ultimos sobrantes
     if (untouched_pix.length<cant_pix_xday){
@@ -80,41 +79,57 @@ async function updateGoal(dbId){
     console.time("save_NewImg_2Db")
     await save_NewImg_2Db(dbId,untouched_pix);
     console.timeEnd("save_NewImg_2Db")
-    console.time("save_NewImgFile")
+    
     await save_NewImgFile(s3_imgName,image_dataArr,imageInfo);
-    console.timeEnd("save_NewImgFile")
-    console.timeEnd("updateOneGoal")
+
 
 }
 
 
 //updateGoal_onlyS3("652b9f1e9f1e9f1e9f1e9f1f_s3",DEFAULT_UNTOUCHED_PIX,DEFLT_CANT_PIX_XDAY,DEFLT_DIFFUM_COLOR)
-goals=["652b9f1e9f1e9f1e9f1e9f1e",
-       "652b9f1e9f1e9f1e9f1e9f1f",
-       "652b9f1e9f1e9f1e9f1e9f20",
-       "652b9f1e9f1e9f1e9f1e9f21",
-       "652b9f1e9f1e9f1e9f1e9f22",
-       "652b9f1e9f1e9f1e9f1e9f23",
-       "652b9f1e9f1e9f1e9f1e9f24",
-       "652b9f1e9f1e9f1e9f1e9f25",
-       "652b9f1e9f1e9f1e9f1e9f26",
-       "652b9f1e9f1e9f1e9f1e9f27"]
+goals=["652b9f1e9f1e9f1e9f1e9f01",
+    "652b9f1e9f1e9f1e9f1e9f02",
+    "652b9f1e9f1e9f1e9f1e9f03",
+    "652b9f1e9f1e9f1e9f1e9f04",
+    "652b9f1e9f1e9f1e9f1e9f05",
+    "652b9f1e9f1e9f1e9f1e9f06",
+    "652b9f1e9f1e9f1e9f1e9f07",
+    "652b9f1e9f1e9f1e9f1e9f08",
+    "652b9f1e9f1e9f1e9f1e9f09",
+    "652b9f1e9f1e9f1e9f1e9f10",
+    "652b9f1e9f1e9f1e9f1e9f11",
+    "652b9f1e9f1e9f1e9f1e9f12",
+    "652b9f1e9f1e9f1e9f1e9f13",
+    "652b9f1e9f1e9f1e9f1e9f14",
+    "652b9f1e9f1e9f1e9f1e9f15",
+    "652b9f1e9f1e9f1e9f1e9f16",
+    "652b9f1e9f1e9f1e9f1e9f17",
+    "652b9f1e9f1e9f1e9f1e9f18",
+    "652b9f1e9f1e9f1e9f1e9f19",
+    "652b9f1e9f1e9f1e9f1e9f20",
+    "652b9f1e9f1e9f1e9f1e9f21",
+    "652b9f1e9f1e9f1e9f1e9f22",
+    "652b9f1e9f1e9f1e9f1e9f23",
+    "652b9f1e9f1e9f1e9f1e9f24",
+    "652b9f1e9f1e9f1e9f1e9f25",
+    "652b9f1e9f1e9f1e9f1e9f26",
+    "652b9f1e9f1e9f1e9f1e9f27",
+    "652b9f1e9f1e9f1e9f1e9f28",
+    "652b9f1e9f1e9f1e9f1e9f29",
+    "652b9f1e9f1e9f1e9f1e9f30"
+      ]
 
 async function main(){
     try{
         await connect_MongoDB();
         console.log("Connected to MongoDB");
 
-        /*console.time("updateGoals")
         for (let goalId of goals){
             console.log(`Updating goal with ID: ${goalId}`);
             await updateGoal(goalId);
             console.log(`Goal with ID: ${goalId} updated successfully`);
         }
-        console.timeEnd("updateGoals")*/
-       console.time("get_Img_FromDb_Pagination")
-       await get_Img_FromDb_Pagination(1, 10); // Example usage of pagination function
-       console.timeEnd("get_Img_FromDb_Pagination")
+  
     }
     catch(e){
         console.error("Error during update:", e);
