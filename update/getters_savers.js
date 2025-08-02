@@ -79,7 +79,7 @@ async function saveMulti_NewImg_2Db(goalsUpdated){
     let operations=[]
 
     for (let goal of goalsUpdated){
-        operations.push({updateOne:{filter:{_id:goal.id},update:{$set:{untouched_pix:goal.untouched_pix, last_diffumDate:new Date()}}}})
+        operations.push({updateOne:{filter:{_id:goal.id},update:{$set:{last_diffumDate:new Date()}}}})
     }
 
     try {

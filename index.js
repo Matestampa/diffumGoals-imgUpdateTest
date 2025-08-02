@@ -103,7 +103,7 @@ async function main(){
         console.log("Connected to MongoDB");
         let nextPage=true
         let page=1
-        let limit=30
+        let limit=10
         
         // Arrays to store timing data for each iteration
         let mongoDownloadTimes = []
@@ -142,11 +142,11 @@ async function main(){
           mongoUploadTimes.push(mongoUploadTime)
           console.log(`MongoDB upload time: ${mongoUploadTime.toFixed(2)}ms`)
 
-          //subir a s3
+          /*subir a s3
           console.log("Subiendo a s3")
           for (let goalImage of s3Data_2_update){
              await save_NewImgFile(goalImage.imgName,goalImage.pixelArr,goalImage.imageInfo)
-          }
+          }*/
 
         }
         
