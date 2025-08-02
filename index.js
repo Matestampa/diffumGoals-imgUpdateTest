@@ -276,4 +276,4 @@ async function main(cant){
     console.log("Disconnected from MongoDB"); 
 }
 
-main(50)
+main(100)
