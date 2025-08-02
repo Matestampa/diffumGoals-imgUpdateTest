@@ -158,11 +158,11 @@ async function updateGoal(dbId){
 
     // Track MongoDB download time
     let dbDownloadStart = performance.now()
-    let {untouched_pix,cant_pix_xday,diffum_color,s3_imgName}=await get_Img_FromDb(dbId)
+    let {cant_pix_xday,diffum_color,s3_imgName}=await get_Img_FromDb(dbId)
     let dbDownloadEnd = performance.now()
     let dbDownloadTime = dbDownloadEnd - dbDownloadStart
     
-    let {image_dataArr,imageInfo}=await get_ImgFile_Array(s3_imgName);
+    /*let {image_dataArr,imageInfo}=await get_ImgFile_Array(s3_imgName);
     
     
     //Si ya quedan los ultimos sobrantes
@@ -180,15 +180,15 @@ async function updateGoal(dbId){
       
       //borrar elem del array de DB
       delete_arrElem(rand_arrPos,untouched_pix);
-    }
+    }*/
     
     // Track MongoDB upload time
     let dbUploadStart = performance.now()
-    await save_NewImg_2Db(dbId,untouched_pix);
+    await save_NewImg_2Db(dbId);
     let dbUploadEnd = performance.now()
     let dbUploadTime = dbUploadEnd - dbUploadStart
     
-    await save_NewImgFile(s3_imgName,image_dataArr,imageInfo);
+    //await save_NewImgFile(s3_imgName,image_dataArr,imageInfo);
 
     // Return timing data
     return {
@@ -198,7 +198,7 @@ async function updateGoal(dbId){
 
 }
 
-async function main(){
+async function main(cant){
     try{
         await connect_MongoDB();
         console.log("Connected to MongoDB");
@@ -243,6 +243,9 @@ async function main(){
                 batchDbDownloadTimes = [];
                 batchDbUploadTimes = [];
             }
+            if (processedCount >= cant) {
+                break;
+            }
         }
         
         // Calculate and display final statistics (averages per ID)
@@ -273,4 +276,4 @@ async function main(){
     console.log("Disconnected from MongoDB"); 
 }
 
-main()
+main(50)

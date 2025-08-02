@@ -11,9 +11,8 @@ const {S3_FUNCS}=require("../aws_services");
 async function get_Img_FromDb(id){
     
     try{
-        let doc=await GoalModel.findById(id).select("untouched_pix cant_pix_xday diffum_color s3_imgName");
-        return {untouched_pix:doc.untouched_pix,
-               cant_pix_xday:doc.cant_pix_xday,
+        let doc=await GoalModel.findById(id).select("cant_pix_xday diffum_color s3_imgName");
+        return {cant_pix_xday:doc.cant_pix_xday,
                diffum_color:doc.diffum_color,
                s3_imgName:doc.s3_imgName};
     }
@@ -66,8 +65,7 @@ async function get_Img_FromDb_Pagination(page = 1, limit = 10, filter = {}){
 //Guarda nuevo arr de pix actualizado de la img en la DB
 async function save_NewImg_2Db(id,pixelArr,data){
     try{
-        await GoalModel.updateOne({_id:id},{$set:{untouched_pix:pixelArr,
-            last_diffumDate:new Date()}});  
+        await GoalModel.updateOne({_id:id},{$set:{last_diffumDate:new Date()}});  
     }
     catch(e){
         throw new MongoDB_Error("Saving new img to DB",e);
