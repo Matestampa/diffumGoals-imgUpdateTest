@@ -11,7 +11,7 @@ const {S3_FUNCS}=require("../aws_services");
 async function get_Img_FromDb(id){
     
     try{
-        let doc=await GoalModel.findById(id).select("untouched_pix cant_pix_xday diffum_color s3_imgName");
+        let doc=await GoalModel.findById(id).select("cant_pix_xday diffum_color s3_imgName");
         return {untouched_pix:doc.untouched_pix,
                cant_pix_xday:doc.cant_pix_xday,
                diffum_color:doc.diffum_color,
@@ -30,7 +30,7 @@ async function get_Img_FromDb_Pagination(page = 1, limit = 10, filter = {}){
         
         const docs = await GoalModel
             .find(filter)
-            .select("untouched_pix cant_pix_xday diffum_color s3_imgName")
+            .select("cant_pix_xday diffum_color s3_imgName")
             .skip(skip)
             .limit(limit);
         
@@ -39,7 +39,6 @@ async function get_Img_FromDb_Pagination(page = 1, limit = 10, filter = {}){
         
         const results = docs.map(doc => ({
             id: doc._id,
-            untouched_pix: doc.untouched_pix,
             cant_pix_xday: doc.cant_pix_xday,
             diffum_color: doc.diffum_color,
             s3_imgName: doc.s3_imgName

@@ -129,9 +129,10 @@ async function main(){
           dbData_2_update=[]
           s3Data_2_update=[]
           for (let goal of goals){
-            let {untouched_pix,image_dataArr,imageInfo}=await getS3Image_and_update(goal.s3_imgName,goal.untouched_pix,goal.cant_pix_xday,goal.diffum_color)
-            dbData_2_update.push({id:goal.id,untouched_pix:untouched_pix})
-            s3Data_2_update.push({imgName:goal.s3_imgName,pixelArr:image_dataArr,imageInfo:imageInfo})
+            //let {untouched_pix,image_dataArr,imageInfo}=await getS3Image_and_update(goal.s3_imgName,goal.untouched_pix,goal.cant_pix_xday,goal.diffum_color)
+            //dbData_2_update.push({id:goal.id,untouched_pix:untouched_pix})
+            dbData_2_update.push({id:goal.id})
+            //s3Data_2_update.push({imgName:goal.s3_imgName,pixelArr:image_dataArr,imageInfo:imageInfo})
           }
 
           // MongoDB Upload timing
