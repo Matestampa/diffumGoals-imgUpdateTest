@@ -103,7 +103,7 @@ async function main(){
         console.log("Connected to MongoDB");
         let nextPage=true
         let page=1
-        let limit=30
+        let limit=10
         
         // Arrays to store timing data for each iteration
         let mongoDownloadTimes = []
