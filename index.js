@@ -103,14 +103,14 @@ async function main(){
         console.log("Connected to MongoDB");
         let nextPage=true
         let page=1
-        let limit=20
+        let limit=30
         
         // Arrays to store timing data for each iteration
         let mongoDownloadTimes = []
         let mongoUploadTimes = []
         
         while (nextPage){
-          console.log(`Processing page ${page}`)
+          console.log(`Processing page ${page} (limit: ${limit})`)
 
           // MongoDB Download timing
           let mongoDownloadStart = performance.now()
@@ -118,7 +118,7 @@ async function main(){
           let mongoDownloadEnd = performance.now()
           let mongoDownloadTime = mongoDownloadEnd - mongoDownloadStart
           mongoDownloadTimes.push(mongoDownloadTime)
-          console.log(`MongoDB download time: ${mongoDownloadTime.toFixed(2)}ms`)
+          console.log(`MongoDB download time: ${mongoDownloadTime.toFixed(2)}ms - Retrieved ${results.data.length} documents`)
           
           goals=results.data
           nextPage=results.pagination.hasNextPage
@@ -141,13 +141,17 @@ async function main(){
           let mongoUploadEnd = performance.now()
           let mongoUploadTime = mongoUploadEnd - mongoUploadStart
           mongoUploadTimes.push(mongoUploadTime)
-          console.log(`MongoDB upload time: ${mongoUploadTime.toFixed(2)}ms`)
+          console.log(`MongoDB upload time: ${mongoUploadTime.toFixed(2)}ms - Updated ${dbData_2_update.length} documents`)
 
           /*subir a s3
           console.log("Subiendo a s3")
           for (let goalImage of s3Data_2_update){
              await save_NewImgFile(goalImage.imgName,goalImage.pixelArr,goalImage.imageInfo)
           }*/
+
+          if (!nextPage) {
+            console.log("Reached last page - no more documents to process")
+          }
 
         }
         

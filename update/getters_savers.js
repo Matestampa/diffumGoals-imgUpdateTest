@@ -34,8 +34,8 @@ async function get_Img_FromDb_Pagination(page = 1, limit = 10, filter = {}){
             .skip(skip)
             .limit(limit);
         
-        const totalCount = await GoalModel.countDocuments(filter);
-        const totalPages = Math.ceil(totalCount / limit);
+        // Si obtenemos menos documentos que el límite, estamos en la última página
+        const hasNextPage = docs.length === limit;
         
         const results = docs.map(doc => ({
             id: doc._id,
@@ -48,11 +48,10 @@ async function get_Img_FromDb_Pagination(page = 1, limit = 10, filter = {}){
             data: results,
             pagination: {
                 currentPage: page,
-                totalPages: totalPages,
-                totalCount: totalCount,
-                hasNextPage: page < totalPages,
+                hasNextPage: hasNextPage,
                 hasPrevPage: page > 1,
-                limit: limit
+                limit: limit,
+                returnedCount: docs.length
             }
         };
     }
