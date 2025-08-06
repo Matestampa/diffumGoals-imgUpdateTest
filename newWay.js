@@ -82,12 +82,34 @@ async function dale(){
     let localDiffumTimes = []
     let s3UploadTimes = []
     let totalGoalTimes = []
+    
+    // Arrays to store MongoDB timing data (per batch)
+    let mongoDownloadTimes = []
+    let mongoUploadTimes = []
+    let mongoDownloadTimesPerGoal = []
+    let mongoUploadTimesPerGoal = []
 
     while (nextPage){
         console.log(`Processing page ${page} (limit: ${limit})`)
 
+        // Time MongoDB download (get_Img_FromDb_Pagination)
+        let mongoDownloadStart = performance.now()
         results=await get_Img_FromDb_Pagination(page,limit)
+        let mongoDownloadEnd = performance.now()
+        let mongoDownloadTime = mongoDownloadEnd - mongoDownloadStart
+        mongoDownloadTimes.push(mongoDownloadTime)
+        
         goals=results.data
+        let currentBatchSize = goals.length
+        
+        // Calculate average MongoDB download time per goal for this batch
+        let mongoDownloadTimePerGoal = mongoDownloadTime / currentBatchSize
+        for (let i = 0; i < currentBatchSize; i++) {
+            mongoDownloadTimesPerGoal.push(mongoDownloadTimePerGoal)
+        }
+        
+        console.log(`MongoDB download: ${mongoDownloadTime.toFixed(2)}ms for ${currentBatchSize} goals (${mongoDownloadTimePerGoal.toFixed(2)}ms per goal)`)
+        
         nextPage=results.pagination.hasNextPage
         page++
 
@@ -119,8 +141,20 @@ async function dale(){
             })
         }
 
-        //Mongodb upload (ignored for timing)
+        // Time MongoDB upload (saveMulti_NewImg_2Db)
+        let mongoUploadStart = performance.now()
         await saveMulti_NewImg_2Db(dbData_2_update)
+        let mongoUploadEnd = performance.now()
+        let mongoUploadTime = mongoUploadEnd - mongoUploadStart
+        mongoUploadTimes.push(mongoUploadTime)
+        
+        // Calculate average MongoDB upload time per goal for this batch
+        let mongoUploadTimePerGoal = mongoUploadTime / currentBatchSize
+        for (let i = 0; i < currentBatchSize; i++) {
+            mongoUploadTimesPerGoal.push(mongoUploadTimePerGoal)
+        }
+        
+        console.log(`MongoDB upload: ${mongoUploadTime.toFixed(2)}ms for ${currentBatchSize} goals (${mongoUploadTimePerGoal.toFixed(2)}ms per goal)`)
 
         //S3 upload
         for (let goalImage of s3Data_2_update){
@@ -146,28 +180,56 @@ async function dale(){
         let totalS3UploadTime = s3UploadTimes.reduce((sum, time) => sum + time, 0)
         let totalCombinedTime = totalGoalTimes.reduce((sum, time) => sum + time, 0)
         
+        // MongoDB timing totals
+        let totalMongoDownloadTime = mongoDownloadTimes.reduce((sum, time) => sum + time, 0)
+        let totalMongoUploadTime = mongoUploadTimes.reduce((sum, time) => sum + time, 0)
+        let totalMongoTime = totalMongoDownloadTime + totalMongoUploadTime
+        
         let avgS3DownloadPerGoal = totalS3DownloadTime / s3DownloadTimes.length
         let avgLocalDiffumPerGoal = totalLocalDiffumTime / localDiffumTimes.length
         let avgS3UploadPerGoal = totalS3UploadTime / s3UploadTimes.length
         let avgTotalPerGoal = totalCombinedTime / totalGoalTimes.length
         
+        // MongoDB averages per goal
+        let avgMongoDownloadPerGoal = mongoDownloadTimesPerGoal.reduce((sum, time) => sum + time, 0) / mongoDownloadTimesPerGoal.length
+        let avgMongoUploadPerGoal = mongoUploadTimesPerGoal.reduce((sum, time) => sum + time, 0) / mongoUploadTimesPerGoal.length
+        let avgMongoTotalPerGoal = avgMongoDownloadPerGoal + avgMongoUploadPerGoal
+        
+        // Grand total including MongoDB
+        let grandTotalTime = totalCombinedTime + totalMongoTime
+        let avgGrandTotalPerGoal = avgTotalPerGoal + avgMongoTotalPerGoal
+        
         console.log(`\n=== FINAL STATISTICS (${s3DownloadTimes.length} goals processed) ===`)
-        console.log(`\nTOTAL TIMES:`)
+        
+        console.log(`\nMONGODB BATCH OPERATIONS:`)
+        console.log(`Total MongoDB Download time: ${totalMongoDownloadTime.toFixed(2)}ms (${mongoDownloadTimes.length} batches)`)
+        console.log(`Total MongoDB Upload time: ${totalMongoUploadTime.toFixed(2)}ms (${mongoUploadTimes.length} batches)`)
+        console.log(`Total MongoDB time: ${totalMongoTime.toFixed(2)}ms`)
+        
+        console.log(`\nS3 & LOCAL PROCESSING:`)
         console.log(`Total S3 Download time: ${totalS3DownloadTime.toFixed(2)}ms`)
         console.log(`Total Local Diffum time: ${totalLocalDiffumTime.toFixed(2)}ms`)
         console.log(`Total S3 Upload time: ${totalS3UploadTime.toFixed(2)}ms`)
-        console.log(`Total Combined time: ${totalCombinedTime.toFixed(2)}ms`)
+        console.log(`Total S3 & Local time: ${totalCombinedTime.toFixed(2)}ms`)
+        
+        console.log(`\nGRAND TOTAL: ${grandTotalTime.toFixed(2)}ms`)
         
         console.log(`\nAVERAGE PER GOAL:`)
+        console.log(`Average MongoDB Download per goal: ${avgMongoDownloadPerGoal.toFixed(2)}ms`)
+        console.log(`Average MongoDB Upload per goal: ${avgMongoUploadPerGoal.toFixed(2)}ms`)
+        console.log(`Average MongoDB Total per goal: ${avgMongoTotalPerGoal.toFixed(2)}ms`)
         console.log(`Average S3 Download per goal: ${avgS3DownloadPerGoal.toFixed(2)}ms`)
         console.log(`Average Local Diffum per goal: ${avgLocalDiffumPerGoal.toFixed(2)}ms`)
         console.log(`Average S3 Upload per goal: ${avgS3UploadPerGoal.toFixed(2)}ms`)
-        console.log(`Average Total per goal: ${avgTotalPerGoal.toFixed(2)}ms`)
+        console.log(`Average S3 & Local Total per goal: ${avgTotalPerGoal.toFixed(2)}ms`)
+        console.log(`Average GRAND TOTAL per goal: ${avgGrandTotalPerGoal.toFixed(2)}ms`)
         
-        console.log(`\nPERCENTAGE BREAKDOWN:`)
-        console.log(`S3 Download: ${(totalS3DownloadTime/totalCombinedTime*100).toFixed(1)}%`)
-        console.log(`Local Diffum: ${(totalLocalDiffumTime/totalCombinedTime*100).toFixed(1)}%`)
-        console.log(`S3 Upload: ${(totalS3UploadTime/totalCombinedTime*100).toFixed(1)}%`)
+        console.log(`\nPERCENTAGE BREAKDOWN (of Grand Total):`)
+        console.log(`MongoDB Download: ${(totalMongoDownloadTime/grandTotalTime*100).toFixed(1)}%`)
+        console.log(`MongoDB Upload: ${(totalMongoUploadTime/grandTotalTime*100).toFixed(1)}%`)
+        console.log(`S3 Download: ${(totalS3DownloadTime/grandTotalTime*100).toFixed(1)}%`)
+        console.log(`Local Diffum: ${(totalLocalDiffumTime/grandTotalTime*100).toFixed(1)}%`)
+        console.log(`S3 Upload: ${(totalS3UploadTime/grandTotalTime*100).toFixed(1)}%`)
     }
 
     await disconnect_MongoDB(); 
