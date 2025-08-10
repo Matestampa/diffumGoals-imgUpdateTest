@@ -4,8 +4,10 @@ function localDiffum(image_dataArr,diffum_color,cant_pix_xday,imageInfo){
     let untouched_pix=get_untouchedPix(image_dataArr,diffum_color,imageInfo.channels);
     let new_image_dataArr=image_dataArr
 
-    if (untouched_pix.length<cant_pix_xday){
+    let lastDiffum = false;
+    if (untouched_pix.length<=cant_pix_xday){
         cant_pix_xday=untouched_pix.length;
+        lastDiffum = true;
     }
 
     for (let i=0;i<cant_pix_xday;i++){
@@ -16,7 +18,7 @@ function localDiffum(image_dataArr,diffum_color,cant_pix_xday,imageInfo){
     }
     
     new_image_dataArr=image_dataArr;
-    return new_image_dataArr
+    return {new_image_dataArr,lastDiffum}
 }
 
 
