@@ -19,6 +19,7 @@ function get_dbSetExpiredOperation(){
     return {expired: true,last_diffumDate: new Date()}
 }
 
+
 //------------------------------ Main func ---------------------------------------------------
 
 async function main(){
@@ -76,6 +77,7 @@ async function main(){
 
         console.log("Batch operations to db completed")
 
+
         //Upload updated images to S3
         for (let goalImage of s3Data_2_update){
 
@@ -84,6 +86,7 @@ async function main(){
         console.log("Batch operations to S3 completed")
 
         console.log(`Page from cursor ${nextCursor} completed - Processed ${goals.length} goals`)
+
     }
     while(nextCursor);
 
