@@ -1,141 +1,97 @@
 const {connect_MongoDB,disconnect_MongoDB}=require("./mongodb/connection.js")
 
-const {get_ImgFile_Array,save_NewImgFile,get_Img_FromDb,save_NewImg_2Db,get_Img_FromDb_Pagination}=require("./update/getters_savers.js");
+const {get_ImgFile_Array,save_NewImgFile,get_Goals_FromDb_Pagination,updateMulti_Goals_2Db}=require("./update/getters_savers.js");
 
-const {get_randNum,get_pixelCoords,
-       changePixel,delete_arrElem}=require("./update/utils.js");
+const {localDiffum} = require("./update/utils.js");
 
-// Function to generate a random RGB color array
-function get_randomRGBColor() {
-    const r = Math.floor(Math.random() * 256); // 0-255
-    const g = Math.floor(Math.random() * 256); // 0-255
-    const b = Math.floor(Math.random() * 256); // 0-255
-    return [r, g, b];
+
+//----------------- Get params to modify in DB , according to the situation ----------------
+
+//DIFFUM operation
+function get_dbDiffumOperation(){
+
+    return {last_diffumDate: new Date()}
 }
 
-//Crear array o traerlo
-function get_untouchedPixArr(width,height){
-    let pixelCoords=[];
+//SET_EXPIRED operation
+function get_dbSetExpiredOperation(){
 
-     for (let y = 0; y < height; y++) {
-        for (let x=0;x<width;x++){
-          pixelCoords.push([x,y]);
-        }
-    }
-    return pixelCoords
-}
-
-DEFAULT_UNTOUCHED_PIX=get_untouchedPixArr(100,100); //Ejemplo de 100x100px
-DEFLT_CANT_PIX_XDAY=50
-DEFLT_DIFFUM_COLOR=get_randomRGBColor()
-
-async function updateGoal_onlyS3(s3_imgName,untouched_pix,cant_pix_xday,diffum_color){
-  
-  let {image_dataArr,imageInfo}=await get_ImgFile_Array(s3_imgName);
-  
-  for (i=0;i<cant_pix_xday;i++){
-    //seleccionar pixel random del array de DB
-    let rand_arrPos=get_randNum(0,untouched_pix.length-1);
-    let pixel_coords=get_pixelCoords(untouched_pix[rand_arrPos]);
-    
-    //modificar pixel del array de img
-    changePixel(pixel_coords[0],pixel_coords[1],diffum_color,image_dataArr,imageInfo);
-    
-    //borrar elem del array de DB
-    delete_arrElem(rand_arrPos,untouched_pix);
-  }
-  
-  //await save_NewImg_2Db(dbId,untouched_pix);
-  await save_NewImgFile(s3_imgName,image_dataArr,imageInfo);
-
-}
-
-async function updateGoal(dbId){
-
-    console.time("get_Img_FromDb")
-    let {untouched_pix,cant_pix_xday,diffum_color,s3_imgName}=await get_Img_FromDb(dbId)
-    console.timeEnd("get_Img_FromDb")
-    
-    let {image_dataArr,imageInfo}=await get_ImgFile_Array(s3_imgName);
-    
-    
-    //Si ya quedan los ultimos sobrantes
-    if (untouched_pix.length<cant_pix_xday){
-      cant_pix_xday=untouched_pix.length;
-    }
-
-    for (i=0;i<cant_pix_xday;i++){
-      //seleccionar pixel random del array de DB
-      let rand_arrPos=get_randNum(0,untouched_pix.length-1);
-      let pixel_coords=get_pixelCoords(untouched_pix[rand_arrPos]);
-      
-      //modificar pixel del array de img
-      changePixel(pixel_coords[0],pixel_coords[1],diffum_color,image_dataArr,imageInfo);
-      
-      //borrar elem del array de DB
-      delete_arrElem(rand_arrPos,untouched_pix);
-    }
-    
-    console.time("save_NewImg_2Db")
-    await save_NewImg_2Db(dbId,untouched_pix);
-    console.timeEnd("save_NewImg_2Db")
-    
-    await save_NewImgFile(s3_imgName,image_dataArr,imageInfo);
-
-
+    return {expired: true,last_diffumDate: new Date()}
 }
 
 
-//updateGoal_onlyS3("652b9f1e9f1e9f1e9f1e9f1f_s3",DEFAULT_UNTOUCHED_PIX,DEFLT_CANT_PIX_XDAY,DEFLT_DIFFUM_COLOR)
-goals=["652b9f1e9f1e9f1e9f1e9f01",
-    "652b9f1e9f1e9f1e9f1e9f02",
-    "652b9f1e9f1e9f1e9f1e9f03",
-    "652b9f1e9f1e9f1e9f1e9f04",
-    "652b9f1e9f1e9f1e9f1e9f05",
-    "652b9f1e9f1e9f1e9f1e9f06",
-    "652b9f1e9f1e9f1e9f1e9f07",
-    "652b9f1e9f1e9f1e9f1e9f08",
-    "652b9f1e9f1e9f1e9f1e9f09",
-    "652b9f1e9f1e9f1e9f1e9f10",
-    "652b9f1e9f1e9f1e9f1e9f11",
-    "652b9f1e9f1e9f1e9f1e9f12",
-    "652b9f1e9f1e9f1e9f1e9f13",
-    "652b9f1e9f1e9f1e9f1e9f14",
-    "652b9f1e9f1e9f1e9f1e9f15",
-    "652b9f1e9f1e9f1e9f1e9f16",
-    "652b9f1e9f1e9f1e9f1e9f17",
-    "652b9f1e9f1e9f1e9f1e9f18",
-    "652b9f1e9f1e9f1e9f1e9f19",
-    "652b9f1e9f1e9f1e9f1e9f20",
-    "652b9f1e9f1e9f1e9f1e9f21",
-    "652b9f1e9f1e9f1e9f1e9f22",
-    "652b9f1e9f1e9f1e9f1e9f23",
-    "652b9f1e9f1e9f1e9f1e9f24",
-    "652b9f1e9f1e9f1e9f1e9f25",
-    "652b9f1e9f1e9f1e9f1e9f26",
-    "652b9f1e9f1e9f1e9f1e9f27",
-    "652b9f1e9f1e9f1e9f1e9f28",
-    "652b9f1e9f1e9f1e9f1e9f29",
-    "652b9f1e9f1e9f1e9f1e9f30"
-      ]
+//------------------------------ Main func ---------------------------------------------------
 
 async function main(){
-    try{
-        await connect_MongoDB();
-        console.log("Connected to MongoDB");
+    await connect_MongoDB();
 
-        for (let goalId of goals){
-            console.log(`Updating goal with ID: ${goalId}`);
-            await updateGoal(goalId);
-            console.log(`Goal with ID: ${goalId} updated successfully`);
+    let nextCursor=null
+    let limit=10
+
+    do{
+        console.log(`Processing page from cursor ${nextCursor} (limit: ${limit})`)
+
+        //Get batch of goals from DB
+        results=await get_Goals_FromDb_Pagination(nextCursor,limit,{expired:false})
+
+        goals=results.data
+        
+        nextCursor=results.pagination.nextCursor
+
+        //S3 donwload and local update
+        dbData_2_update=[]
+        s3Data_2_update=[]
+        batchOperations=[]
+        for (let goal of goals){
+        
+            //Get image data and info from S3
+            let {image_dataArr,imageInfo}=await get_ImgFile_Array(goal.s3_imgName);
+            
+            //Apply local diffum
+            let lastDiffum=false;
+            ({new_image_dataArr,lastDiffum}=localDiffum(image_dataArr,goal.diffum_color,goal.cant_pix_xday,imageInfo));
+            console.log("Is the last diffum", lastDiffum)
+
+            //If the last pixels are diffumed or the date is expired, the goal is set to expired
+            if (lastDiffum || goal.limit_date < new Date()){
+                dbData_2_update.push({id:goal.id,settedObject:get_dbSetExpiredOperation()})
+                batchOperations.push({id:goal.id,operation:"SET_EXPIRED"})
+            }
+
+            //If the goal is not expired, it is updated with the new diffum data
+            else{
+                dbData_2_update.push({id:goal.id,settedObject:get_dbDiffumOperation()})
+                batchOperations.push({id:goal.id,operation:"DIFFUM"})
+            }
+
+            s3Data_2_update.push({
+                imgName:goal.s3_imgName,
+                pixelArr:new_image_dataArr,
+                imageInfo:imageInfo,
+            })
         }
-  
+
+        console.log("Batch operations:", batchOperations)
+        //Update goals data in DB in batch
+        await updateMulti_Goals_2Db(dbData_2_update)
+
+        console.log("Batch operations to db completed")
+
+
+        //Upload updated images to S3
+        for (let goalImage of s3Data_2_update){
+
+            await save_NewImgFile(goalImage.imgName,goalImage.pixelArr,goalImage.imageInfo)
+        }
+        console.log("Batch operations to S3 completed")
+
+        console.log(`Page from cursor ${nextCursor} completed - Processed ${goals.length} goals`)
+
     }
-    catch(e){
-        console.error("Error during update:", e);
-    }
-    await disconnect_MongoDB();
-    console.log("Disconnected from MongoDB"); 
+    while(nextCursor);
+
+    await disconnect_MongoDB(); 
 }
+
 
 main()

@@ -1,2 +1,4 @@
 .env.prod
+.env.dev
+.env.testProd
 /node_modules
