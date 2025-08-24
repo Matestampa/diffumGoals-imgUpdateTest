@@ -1,0 +1,8 @@
+
+
+-Ver como vienen los errores de mongo:
+    -Hacer mal a proposito el de conexion y el de batches
+
+-Hacer especificos las clases de errores de batches de mongo:
+
+-Como deberia ser el formato de los logs para q cloudwatch pueda identificar algo?

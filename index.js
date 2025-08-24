@@ -4,6 +4,9 @@ const {get_ImgFile_Array,save_NewImgFile,get_Goals_FromDb_Pagination,updateMulti
 
 const {localDiffum} = require("./update/utils.js");
 
+const {internalError_handler} = require("./error_handling/handler.js")
+
+const {MongoDB_InitialConnection_Error} = require("./update/errors.js")
 
 //----------------- Get params to modify in DB , according to the situation ----------------
 
@@ -23,7 +26,13 @@ function get_dbSetExpiredOperation(){
 //------------------------------ Main func ---------------------------------------------------
 
 async function main(){
-    await connect_MongoDB();
+    try{
+        await connect_MongoDB();
+    }
+    catch(e){
+        internalError_handler(new MongoDB_InitialConnection_Error("",e));
+        process.exit(1);
+    }
 
     let nextCursor=null
     let limit=10
