@@ -16,4 +16,4 @@ class MongoDB_Error extends InternalError{
     }
 }
 
-module.exports = {MongoDB_Error};
+module.exports = {MongoDB_Error,MongoDB_Connection_Error};
