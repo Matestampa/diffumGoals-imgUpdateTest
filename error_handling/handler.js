@@ -1,6 +1,5 @@
 const {infoLogger,errorLogger} = require("./logger.js")
 
-const {MongoDB_Connection_Error} = require("../mongodb/error_handler.js")
 
 async function internalError_handler(error,action,goalsIds){
 
@@ -13,6 +12,6 @@ async function internalError_handler(error,action,goalsIds){
 }
 
 
-internalError_handler(new MongoDB_Connection_Error("Error de conexion a la base de datos"),"Conectando a la base de datos",[3,4,2])
+//internalError_handler(new MongoDB_Connection_Error("Error de conexion a la base de datos"),"Conectando a la base de datos",[3,4,2])
 
 module.exports= {internalError_handler};
