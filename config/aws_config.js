@@ -11,6 +11,10 @@ const AWS_S3_VARS={
     secretAccessKey:process.env.S3_AWS_SECRET_ACCESS_KEY,
 }
 
-console.log(AWS_S3_VARS)
+const AWS_CLOUDFRONT_VARS={
+    distributionId:process.env.CFNT_DISTRIBUTION_ID,
+    accessKeyId:process.env.CFNT_ACCESS_KEY_ID,
+    secretAccessKey:process.env.CFNT_SECRET_ACCESS_KEY
+}
 
-module.exports= {AWS_S3_VARS};
+module.exports= {AWS_S3_VARS, AWS_CLOUDFRONT_VARS};
