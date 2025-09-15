@@ -1,6 +1,8 @@
 const {connect_MongoDB,disconnect_MongoDB}=require("./mongodb/connection.js")
 
-const {get_ImgFile_Array,save_NewImgFile,get_Goals_FromDb_Pagination,updateMulti_Goals_2Db}=require("./update/getters_savers.js");
+const {get_ImgFile_Array,save_NewImgFile,
+       get_Goals_FromDb_Pagination,updateMulti_Goals_2Db,
+       invalidate_CloudfrontCache}=require("./update/getters_savers.js");
 
 const {localDiffum} = require("./update/utils.js");
 
@@ -89,6 +91,10 @@ async function main(){
 
     }
     while(nextCursor);
+
+    //Invalidate Cloudfront cache
+    await invalidate_CloudfrontCache()
+    console.log("Cloudfront cache invalidated")
 
     await disconnect_MongoDB(); 
 }

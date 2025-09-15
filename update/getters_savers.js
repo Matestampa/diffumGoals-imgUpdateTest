@@ -3,7 +3,9 @@ const sharp = require('sharp');
 
 const {GoalModel,MongoDB_Error}=require("../mongodb");
 
-const {S3_FUNCS}=require("../aws_services");
+const {S3_FUNCS,CLOUDFRONT_FUNCS}=require("../aws_services");
+
+const {AWS_CLOUDFRONT_VARS} = require("../config/aws_config.js");
 
 //------------------------- DB ---------------------------------------------- 
 
@@ -100,6 +102,16 @@ async function save_NewImgFile(imgName, pixelArr, info) {
     await S3_FUNCS.saveObject(imgName, buffer, "image/png");
 }
 
+
+//------------------------- CLOUDFRONT : invalidate cache ----------------------------------------------
+async function invalidate_CloudfrontCache(){
+
+    distId=AWS_CLOUDFRONT_VARS.distributionId;
+    paths=["/*"]
+
+    await CLOUDFRONT_FUNCS.invalidateCache(distId,paths)
+}
+
 module.exports={get_Goals_FromDb_Pagination,updateMulti_Goals_2Db,
-                get_ImgFile_Array,save_NewImgFile
+                get_ImgFile_Array,save_NewImgFile,invalidate_CloudfrontCache
 }
