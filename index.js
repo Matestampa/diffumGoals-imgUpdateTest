@@ -74,11 +74,6 @@ async function main(){
         }
 
         console.log("Batch operations:", batchOperations)
-        //Update goals data in DB in batch
-        await updateMulti_Goals_2Db(dbData_2_update)
-
-        console.log("Batch operations to db completed")
-
 
         //Upload updated images to S3
         for (let goalImage of s3Data_2_update){
@@ -86,6 +81,11 @@ async function main(){
             await save_NewImgFile(goalImage.imgName,goalImage.pixelArr,goalImage.imageInfo)
         }
         console.log("Batch operations to S3 completed")
+        
+        //Update goals data in DB in batch
+        await updateMulti_Goals_2Db(dbData_2_update)
+
+        console.log("Batch operations to db completed")
 
         console.log(`Page from cursor ${nextCursor} completed - Processed ${goals.length} goals`)
 

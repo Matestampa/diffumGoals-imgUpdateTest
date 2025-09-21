@@ -2,3 +2,4 @@
 .env.dev
 .env.testProd
 /node_modules
+/logs/files
